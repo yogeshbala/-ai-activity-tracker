@@ -1,12 +1,18 @@
 import streamlit as st
-from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# Initialize Firebase (use your secrets config)
+# Check if secrets are available
+if "firebase_credentials" not in st.secrets:
+    st.error("❌ Firebase credentials not found in Streamlit secrets.")
+    st.stop()
+
+# Initialize Firebase
 cred = credentials.Certificate(st.secrets["firebase_credentials"])
 firebase_admin.initialize_app(cred)
 db = firestore.client()
+
+st.success("✅ Firebase initialized successfully!")
 
 # Daily log form
 st.title("🗓️ Daily Activity Tracker")
