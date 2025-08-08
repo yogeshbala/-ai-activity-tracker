@@ -26,14 +26,15 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 # Streamlit UI
-st.set_page_config(page_title="Daily Input Tracker", page_icon="📝")
-st.title("📝 Daily Input Tracker")
+st.set_page_config(page_title="Daily Input Tracker", page_icon="🧠")
+st.title("🧠 Daily Input Tracker")
 
 # Input form
-user_input = st.text_area("Enter today's input")
+st.markdown("### ✍️ Log Your Daily Entry")
+user_input = st.text_area("What's on your mind today?", height=150)
 today = datetime.now().strftime("%Y-%m-%d")
 
-if st.button("Save Entry"):
+if st.button("📥 Save Entry"):
     if user_input.strip():
         db.collection("daily_inputs").add({
             "input": user_input,
@@ -45,28 +46,20 @@ if st.button("Save Entry"):
         st.warning("⚠️ Please enter something before saving.")
 
 # Display previous entries
+st.markdown("---")
 st.subheader("📜 Entry History")
-docs = db.collection("daily_inputs").order_by("timestamp", direction=firestore.Query.DESCENDING).stream()
 
-entries = []
-st.subheader("📜 Entry History")
 try:
     docs = db.collection("daily_inputs").order_by("date", direction=firestore.Query.DESCENDING).stream()
     entries = []
     for doc in docs:
         data = doc.to_dict()
-        entries.append(f"📅 {data.get('date', 'Unknown')}: {data.get('input', '')}")
+        entries.append(f"📅 **{data.get('date', 'Unknown')}**\n> {data.get('input', '')}")
 
     if entries:
         for entry in entries:
             st.markdown(entry)
     else:
-        st.info("No entries found yet.")
+        st.info("ℹ️ No entries found yet. Start by logging your first one!")
 except Exception as e:
     st.error(f"⚠️ Failed to fetch entries: {e}")
-
-if entries:
-    for entry in entries:
-        st.markdown(entry)
-else:
-    st.info("No entries found yet.")
