@@ -3,14 +3,16 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
 
-# Convert secrets to a dictionary
+# Convert secrets to dictionary
 firebase_creds = dict(st.secrets["firebase_credentials"])
 
-# Initialize Firebase
-cred = credentials.Certificate(firebase_creds)
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+# Initialize Firebase only once
+if not firebase_admin._apps:
+    cred = credentials.Certificate(firebase_creds)
+    firebase_admin.initialize_app(cred)
 
+# Connect to Firestore
+db = firestore.client()
 st.success("✅ Firebase initialized successfully!")
 
 # Daily log form
