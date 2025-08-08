@@ -3,6 +3,8 @@ from email.mime.text import MIMEText
 from db import check_today_log
 from config import get_email_credentials
 
+email_user, email_pass, recipient = get_email_credentials()
+
 def send_reminder():
     if check_today_log(): return  # Already logged
 
