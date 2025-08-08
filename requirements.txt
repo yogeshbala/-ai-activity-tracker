@@ -1,1 +1,6 @@
-
+streamlit
+pandas
+schedule
+smtplib
+openai
+python-dotenv
