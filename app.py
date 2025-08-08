@@ -49,9 +49,21 @@ st.subheader("📜 Entry History")
 docs = db.collection("daily_inputs").order_by("timestamp", direction=firestore.Query.DESCENDING).stream()
 
 entries = []
-for doc in docs:
-    data = doc.to_dict()
-    entries.append(f"📅 {data.get('date', 'Unknown')}: {data.get('input', '')}")
+st.subheader("📜 Entry History")
+try:
+    docs = db.collection("daily_inputs").order_by("date", direction=firestore.Query.DESCENDING).stream()
+    entries = []
+    for doc in docs:
+        data = doc.to_dict()
+        entries.append(f"📅 {data.get('date', 'Unknown')}: {data.get('input', '')}")
+
+    if entries:
+        for entry in entries:
+            st.markdown(entry)
+    else:
+        st.info("No entries found yet.")
+except Exception as e:
+    st.error(f"⚠️ Failed to fetch entries: {e}")
 
 if entries:
     for entry in entries:
