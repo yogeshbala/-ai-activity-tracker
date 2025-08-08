@@ -2,13 +2,11 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# Check if secrets are available
-if "firebase_credentials" not in st.secrets:
-    st.error("❌ Firebase credentials not found in Streamlit secrets.")
-    st.stop()
+# Convert secrets to a dictionary
+firebase_creds = dict(st.secrets["firebase_credentials"])
 
 # Initialize Firebase
-cred = credentials.Certificate(st.secrets["firebase_credentials"])
+cred = credentials.Certificate(firebase_creds)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
