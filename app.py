@@ -22,8 +22,8 @@ crypto_work = st.checkbox("📈 Crypto Work Done")
 hair_care = st.checkbox("🧴 Hair Care Done")
 no_expense = st.checkbox("💸 No Unwanted Expense Today")
 
-# --- Check for No Activity ---
-no_activity = (
+# --- Check if ALL fields are untouched ---
+fields_empty = (
     morning_walk == datetime.strptime("00:00", "%H:%M").time() and
     not whey_taken and
     water_litres == 0.0 and
@@ -34,13 +34,12 @@ no_activity = (
 )
 
 # --- Reason Prompt ---
-if no_activity:
+reason = None
+if fields_empty:
     reason = st.text_area(
-        "⚠️ No activities logged today. Would you like to share why?",
+        "⚠️ You haven't entered any activity today. Would you like to share why?",
         placeholder="e.g., rest day, travel, not feeling well..."
     )
-else:
-    reason = None
 
 # --- Submit Button ---
 if st.button("✅ Log Today's Activities"):
