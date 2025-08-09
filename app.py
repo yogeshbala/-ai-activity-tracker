@@ -10,49 +10,54 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# --- Streamlit UI ---
-st.title("🗓️ Daily Activity Tracker")
+st.title("🧠 Guided Daily Tracker")
 
-# Activity Inputs
-morning_walk = st.time_input("🚶 Morning Walk Time", value=datetime.strptime("00:00", "%H:%M").time())
-whey_taken = st.checkbox("💪 Whey Protein Taken")
-water_litres = st.number_input("💧 Litres of Water Consumed", min_value=0.0, step=0.1)
-no_sugar = st.checkbox("🚫 No Sugar Consumed")
-crypto_work = st.checkbox("📈 Crypto Work Done")
-hair_care = st.checkbox("🧴 Hair Care Done")
-no_expense = st.checkbox("💸 No Unwanted Expense Today")
+# --- Morning Walk ---
+walk_done = st.radio("🚶 Did you do your morning walk?", ["Yes", "No"])
+walk_time = None
+walk_reason = None
+if walk_done == "Yes":
+    walk_time = st.time_input("🕒 What time did you walk?")
+else:
+    walk_reason = st.text_area("❓ Why didn't you walk today?")
 
-# --- Check if ALL fields are untouched ---
-fields_empty = (
-    morning_walk == datetime.strptime("00:00", "%H:%M").time() and
-    not whey_taken and
-    water_litres == 0.0 and
-    not no_sugar and
-    not crypto_work and
-    not hair_care and
-    not no_expense
-)
+# --- Water Intake ---
+water_litres = st.number_input("💧 How many litres of water did you drink today?", min_value=0.0, step=0.1)
+if water_litres < 3.0:
+    st.warning("⚠️ You haven't met your 3L goal today.")
 
-# --- Reason Prompt ---
-reason = None
-if fields_empty:
-    reason = st.text_area(
-        "⚠️ You haven't entered any activity today. Would you like to share why?",
-        placeholder="e.g., rest day, travel, not feeling well..."
-    )
+# --- Sugar Consumption ---
+sugar_taken = st.radio("🍬 Did you consume sugar today?", ["Yes", "No"])
+sugar_reason = None
+if sugar_taken == "Yes":
+    sugar_reason = st.text_area("❓ What was the reason for consuming sugar?")
 
-# --- Submit Button ---
+# --- Crypto Work ---
+crypto_done = st.radio("📈 Did you complete your crypto-related work today?", ["Yes", "No"])
+
+# --- Hair Care ---
+hair_done = st.radio("🧴 Did you follow your hair care routine?", ["Yes", "No"])
+hair_reason = None
+if hair_done == "No":
+    hair_reason = st.text_area("❓ Why didn't you do your hair care routine?")
+
+# --- Unwanted Expense ---
+expense_done = st.radio("💸 Did you make any unwanted expenses today?", ["Yes", "No"])
+
+# --- Submit ---
 if st.button("✅ Log Today's Activities"):
     doc = {
         "date": datetime.now().strftime("%Y-%m-%d"),
-        "morning_walk": str(morning_walk),
-        "whey_taken": whey_taken,
+        "morning_walk": walk_done,
+        "walk_time": str(walk_time) if walk_time else None,
+        "walk_reason": walk_reason,
         "water_litres": water_litres,
-        "no_sugar": no_sugar,
-        "crypto_work": crypto_work,
-        "hair_care": hair_care,
-        "no_expense": no_expense,
-        "reason": reason,
+        "sugar_taken": sugar_taken,
+        "sugar_reason": sugar_reason,
+        "crypto_done": crypto_done,
+        "hair_done": hair_done,
+        "hair_reason": hair_reason,
+        "unwanted_expense": expense_done,
         "timestamp": firestore.SERVER_TIMESTAMP
     }
     db.collection("daily_logs").add(doc)
