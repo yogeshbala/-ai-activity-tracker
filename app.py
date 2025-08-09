@@ -74,17 +74,23 @@ if page == "Daily Tracker":
 elif page == "Dashboard":
     st.title("📊 Daily Tracker Dashboard")
 
-    docs = db.collection("daily_logs").order_by("date").stream()
+    docs = db.collection("daily_logs").order_by("timestamp").stream()
     data = []
     for doc in docs:
         entry = doc.to_dict()
-        entry["date"] = pd.to_datetime(entry["date"])
-        data.append(entry)
+        if "date" in entry:
+            try:
+                entry["date"] = pd.to_datetime(entry["date"])
+                data.append(entry)
+            except Exception as e:
+                st.warning(f"⚠️ Skipped entry due to date parsing error: {e}")
 
-    df = pd.DataFrame(data).sort_values("date")
+    df = pd.DataFrame(data)
+    if "date" in df.columns:
+        df = df.sort_values("date")
 
     if df.empty:
-        st.info("No data logged yet.")
+        st.info("No valid data logged yet.")
     else:
         # Morning Walk
         st.subheader("🚶 Morning Walk")
